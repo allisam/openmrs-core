@@ -805,6 +805,8 @@ public final class OpenmrsConstants {
 	
 	public static final String GLOBAL_PROPERTY_APPLICATION_NAME = "application.name";
 	
+	public static final String GLOBAL_PROPERTY_PERSON_ATTRIBUTE_TYPES_LOCKED = "PersonAttributeType.locked";
+	
 	/**
 	 * Array of all core global property names that represent comma-separated lists of
 	 * PersonAttributeTypes. (If you rename a PersonAttributeType then these global properties are
@@ -1492,6 +1494,9 @@ public final class OpenmrsConstants {
 		
 		props.add(new GlobalProperty(GLOBAL_PROPERTY_APPLICATION_NAME, "OpenMRS",
 		        "The name of this application, as presented to the user, for example on the login and welcome pages."));
+		
+		props.add(new GlobalProperty(GLOBAL_PROPERTY_PERSON_ATTRIBUTE_TYPES_LOCKED, "false",
+			"if true, do not allow editing person attribute types", BooleanDatatype.class, null));
 		
 		props
 		        .add(new GlobalProperty(

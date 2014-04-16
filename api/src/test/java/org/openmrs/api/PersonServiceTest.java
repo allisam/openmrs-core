@@ -30,6 +30,7 @@ import java.util.Vector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.GlobalProperty;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -2121,4 +2122,88 @@ public class PersonServiceTest extends BaseContextSensitiveTest {
 		Assert.assertTrue(address.isPreferred());
 	}
 	
+	// MOCO ADDITION
+	
+	/**
+	 * @see {@link PersonService#savePersonAttributeType(PersonAttributeType)}}
+	 */
+	@Test(expected = PersonAttributeTypeLockedException.class)
+	@Verifies(value = "should throw an error when trying to save person attribute type while person attribute types are locked", method = "savePersonAttributeType(PersonAttributeType)")
+	public void savePersonAttributeType_shouldThrowAnErrorWhenTryingToSavePersonAttributeTypeWhilePersonAttributeTypesAreLocked()
+	        throws Exception {
+		PersonAttributeType personAttributeType = Context.getPersonService().getPersonAttributeType(1);
+		
+		Assert.assertNotNull(personService);
+		
+		// Creating a global property for locking the person attribute types and locking them
+		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_PERSON_ATTRIBUTE_TYPES_LOCKED);
+		gp.setPropertyValue("true");
+		Context.getAdministrationService().saveGlobalProperty(gp);
+		
+		// Saving a person attribute type after locking person attribute types
+		personService.savePersonAttributeType(personAttributeType);
+	}
+	
+	/**
+	 * @see {@link PersonService#retirePersonAttributeType(PersonAttributeType, String)}}
+	 */
+	@Test(expected = PersonAttributeTypeLockedException.class)
+	@Verifies(value = "should throw an error when trying to retire person attribute type while person attribute types are locked", method = "retirePersonAttributeType(PersonAttributeType, String)")
+	public void retirePersonAttributeType_shouldThrowAnErrorWhenTryingToRetirePersonAttributeTypeWhilePersonAttributeTypesAreLocked()
+	        throws Exception {
+		PersonAttributeType personAttributeType = Context.getPersonService().getPersonAttributeType(1);
+		Assert.assertNotNull(personService);
+		
+		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_PERSON_ATTRIBUTE_TYPES_LOCKED);
+		gp.setPropertyValue("true");
+		Context.getAdministrationService().saveGlobalProperty(gp);
+		
+		// Ensure that the Person Attribute Type being tested is in fact locked before attempting to retire it
+		assert(personAttributeType.isRetired());
+		
+		// Trying to retire a person attribute type after locking person attribute types
+		personService.retirePersonAttributeType(personAttributeType, "reason");
+	}
+	
+	/**
+	 * @see {@link PersonService#unretirePersonAttributeType(PersonAttributeType)}}
+	 */
+	@Test(expected = PersonAttributeTypeLockedException.class)
+	@Verifies(value = "should throw an error when trying to unretire person attribute type while person attribute types are locked", method = "retirePersonAttributeType(PersonAttributeType, String)")
+	public void unretirePersonAttributeType_shouldThrowAnErrorWhenTryingToUnretirePersonAttributeTypeWhilePersonAttributeTypesAreLocked()
+	        throws Exception {
+		Assert.assertNotNull(personService);
+		
+		PersonAttributeType personAttributeType = Context.getPersonService().getPersonAttributeType(1);
+		
+		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_PERSON_ATTRIBUTE_TYPES_LOCKED);
+		gp.setPropertyValue("true");
+		Context.getAdministrationService().saveGlobalProperty(gp);
+		
+		// Ensure that the Person Attribute Type being tested has in fact already been retired before attempting to unretire it
+		assert(personAttributeType.isRetired() == false);
+		
+		// Trying to unretire a person attribute type after locking person attribute types
+		personService.unretirePersonAttributeType(personAttributeType);
+	}
+	
+	/**
+	 * @see {@link PersonService#purgePersonAttributeType(PersonAttributeType)}}
+	 */
+	@Test(expected = PersonAttributeTypeLockedException.class)
+	@Verifies(value = "should throw an error when trying to delete person attribute type while person attribute types are locked", method = "retirePersonAttributeType(PersonAttributeType, String)")
+	public void purgePersonAttributeType_shouldThrowAnErrorWhileTryingToDeletePersonAttributeTypeWhenPersonAttributeTypesAreLocked()
+	        throws Exception {
+		// Confirm that personService is not null
+		Assert.assertNotNull(personService);
+		
+		PersonAttributeType personAttributeType = Context.getPersonService().getPersonAttributeType(1);
+		
+		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_PERSON_ATTRIBUTE_TYPES_LOCKED);
+		gp.setPropertyValue("true");
+		Context.getAdministrationService().saveGlobalProperty(gp);
+		
+		// Trying to purge or delete a person attribute type after locking person attribute types
+		personService.purgePersonAttributeType(personAttributeType);
+	}
 }
